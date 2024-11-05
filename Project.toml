@@ -3,6 +3,22 @@ uuid = "3181ac60-05e2-4849-b670-ade75aab7d5b"
 authors = ["Thura Z."]
 version = "1.0.0-DEV"
 
+[deps]
+ARFFFiles = "da404889-ca92-49ff-9e8b-0aa6b4d38dc8"
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+CategoricalArrays = "324d7699-5711-5eae-9e2f-1d82baa6b597"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+IJulia = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
+JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
+JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
+MLJ = "add582a8-e3ab-11e8-2d5e-e98b27df1bc7"
+OrderedCollections = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
+
 [compat]
 julia = "1.6.7"
 
