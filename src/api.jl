@@ -48,7 +48,6 @@ end
 Fetch dataset information from OpenML API.
 """
 function get_dataset_info(dataset_id::Int64)::OrderedDict{String,Any}
-    # Pre-allocate headers with type annotation
     headers::Dict{String,String} = Dict("accept" => "application/json")
 
     try
@@ -57,41 +56,32 @@ function get_dataset_info(dataset_id::Int64)::OrderedDict{String,Any}
         @warn "API key not set. Some datasets may be inaccessible."
     end
 
-    # Type annotation for response
-    response::Union{HTTP.Messages.Response,Nothing} = nothing
+    url::String = "$(BASE_URL)/data/$(dataset_id)"
+    local response::Union{HTTP.Messages.Response,Nothing} = nothing
 
     for attempt in 1:MAX_RETRIES
         try
-            response = HTTP.get("$BASE_URL/data/$dataset_id", headers=headers)
+            response = HTTP.request("GET", url; headers=headers)
             break
         catch e
-            if e isa HTTP.ExceptionRequest.StatusError && e.status >= 500
-                @info "Request failed with status code $(e.status), retrying ($attempt/$MAX_RETRIES)"
+            if e isa HTTP.StatusError && e.status >= 500
+                if attempt == MAX_RETRIES
+                    throw(APIError("Failed after $(MAX_RETRIES) attempts"))
+                end
+                @info "Request failed with status code $(e.status), retrying ($(attempt)/$(MAX_RETRIES))"
                 sleep(RETRY_DELAY)
             else
-                throw(e)
+                rethrow(e)
             end
         end
     end
 
-    # Early return if response is nothing
     isnothing(response) && throw(APIError("No response received after $MAX_RETRIES attempts"))
-
     response.status != 200 && throw(APIError("Failed to fetch dataset info: $(response.status)"))
 
-    # Parse response body
-    response_data = JSON3.read(response.body)
-    dataset_description = response_data.data_set_description
+    dataset_description = JSON3.read(response.body).data_set_description
+    result = OrderedDict{String,Any}(String(k) => v for (k, v) in pairs(dataset_description))
 
-    # Create result dictionary with explicit type
-    result = OrderedDict{String,Any}()
-
-    # Convert to OrderedDict with String keys
-    for (k, v) in pairs(dataset_description)
-        result[String(k)] = v
-    end
-
-    # Warn if name is missing
     if !haskey(result, "name")
         @warn "Dataset description does not contain a 'name' key for dataset ID: $dataset_id"
     end
